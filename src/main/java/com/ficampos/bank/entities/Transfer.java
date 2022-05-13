@@ -28,4 +28,11 @@ public class Transfer implements Serializable {
     private LocalDateTime updatedAt;
     @Column(nullable = false)
     private Status status;
+
+    @OneToOne
+    @JoinColumn(name = "source_id", referencedColumnName = "id")
+    private Account source;
+    @OneToOne
+    @JoinColumn(name = "receiver_id", referencedColumnName = "id")
+    private Account receiver;
 }
