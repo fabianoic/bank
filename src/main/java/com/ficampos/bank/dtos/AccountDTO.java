@@ -7,9 +7,13 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AccountDTO {
 
+    @EqualsAndHashCode.Include
     private Integer agency;
-    private Long accountNumber;
+    @EqualsAndHashCode.Include
+    private Integer accountNumber;
     private Long balance;
+
 }
