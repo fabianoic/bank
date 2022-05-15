@@ -22,15 +22,12 @@ public class User implements Serializable {
     private String firstName;
     @Column(nullable = false)
     private String lastName;
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(nullable = false, unique = true, length = 14)
     private String cpf;
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
     private String password;
-
+    @Column(unique = true)
     private String phone;
-
-
-
 }

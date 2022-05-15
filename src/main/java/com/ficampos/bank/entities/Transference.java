@@ -15,7 +15,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transfer implements Serializable {
+public class Transference implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +24,6 @@ public class Transfer implements Serializable {
     private Double value;
     @Column(nullable = false)
     private LocalDateTime createdAt;
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
     @Column(nullable = false)
     private Status status;
@@ -33,6 +32,6 @@ public class Transfer implements Serializable {
     @JoinColumn(name = "source_id", referencedColumnName = "id")
     private Account source;
     @OneToOne
-    @JoinColumn(name = "receiver_id", referencedColumnName = "id")
-    private Account receiver;
+    @JoinColumn(name = "destination_id", referencedColumnName = "id")
+    private Account destination;
 }
