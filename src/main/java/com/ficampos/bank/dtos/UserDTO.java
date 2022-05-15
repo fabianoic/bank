@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
 
+    private UUID id;
     @NotBlank(message = "O nome não pode ser vázio!")
     private String firstName;
     @NotBlank(message = "O sobrenome não pode ser vázio!")
@@ -27,4 +29,6 @@ public class UserDTO {
     private String password;
 
     private String phone;
+
+    private AccountDTO accountDTO;
 }

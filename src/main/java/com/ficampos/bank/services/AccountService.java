@@ -23,7 +23,7 @@ import java.util.Random;
 public class AccountService {
 
     @Autowired
-    private AccountRepository repository;
+    private AccountRepository accountRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -38,13 +38,13 @@ public class AccountService {
 
         Account account = Account.builder()
                 .agency(1234)
-                .accountNumber( new Random().nextInt(99999999))
+                .accountNumber(new Random().nextInt(99999999))
                 .balance(0.0)
                 .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
                 .user(user)
                 .build();
 
-        account = repository.save(account);
+        account = accountRepository.save(account);
 
         ModelMapper modelMapper = new ModelMapper();
         AccountDTO accountDTO = modelMapper.map(account, AccountDTO.class);
@@ -53,8 +53,8 @@ public class AccountService {
     }
 
     public AccountDTO deposit(AccountDTO source, AccountDTO destination, Double value) {
-        Account accountDestination = repository.findByAgencyAndAccountNumber(destination.getAgency(), destination.getAccountNumber());
-        Account accountSource = repository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
+        Account accountDestination = accountRepository.findByAgencyAndAccountNumber(destination.getAgency(), destination.getAccountNumber());
+        Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
         if (accountDestination == null || accountSource == null || value < 0.0) {
             return null;
         }
@@ -77,8 +77,8 @@ public class AccountService {
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
 
-        repository.save(accountSource);
-        repository.save(accountDestination);
+        accountRepository.save(accountSource);
+        accountRepository.save(accountDestination);
         transferenceRepository.save(transference);
 
         ModelMapper modelMapper = new ModelMapper();
@@ -88,7 +88,7 @@ public class AccountService {
     }
 
     public AccountDTO withdraw(AccountDTO accountDTO, Double value) {
-        Account account = repository.findByAgencyAndAccountNumber(accountDTO.getAgency(), accountDTO.getAccountNumber());
+        Account account = accountRepository.findByAgencyAndAccountNumber(accountDTO.getAgency(), accountDTO.getAccountNumber());
 
         if (account == null || value < 0.0 || account.getBalance() - value < 0.0) {
             return null;
@@ -105,7 +105,7 @@ public class AccountService {
 
         account.setBalance(account.getBalance() - value);
 
-        repository.save(account);
+        accountRepository.save(account);
         transferenceRepository.save(transference);
 
         ModelMapper modelMapper = new ModelMapper();
@@ -123,7 +123,7 @@ public class AccountService {
         }
 
         Account accountDestination = pix.getId().getAccount();
-        Account accountSource = repository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
+        Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
 
         if (accountDestination == null || accountSource == null || value < 0.0) {
             return null;
@@ -147,13 +147,23 @@ public class AccountService {
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
 
-        repository.save(accountSource);
-        repository.save(accountDestination);
+        accountRepository.save(accountSource);
+        accountRepository.save(accountDestination);
         transferenceRepository.save(transference);
 
         ModelMapper modelMapper = new ModelMapper();
         AccountDTO accountDTO = modelMapper.map(accountSource, AccountDTO.class);
 
         return accountDTO;
+    }
+
+    public Boolean findAccountByUserToDelete(User user) {
+        Account account = accountRepository.findByUser(user);
+        if (account == null) {
+            return false;
+        }
+        accountRepository.delete(account);
+
+        return true;
     }
 }
