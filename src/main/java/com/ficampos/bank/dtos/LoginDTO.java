@@ -1,14 +1,12 @@
 package com.ficampos.bank.dtos;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
-@Getter
-@Setter
+@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class LoginDTO {
     @NotBlank(message = "Por favor, digite um e-mail válido")
     private String email;

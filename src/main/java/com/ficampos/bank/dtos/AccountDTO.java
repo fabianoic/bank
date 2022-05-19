@@ -2,11 +2,9 @@ package com.ficampos.bank.dtos;
 
 import lombok.*;
 
-@Getter
-@Setter
+
+@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AccountDTO {
 

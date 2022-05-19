@@ -1,20 +1,18 @@
 package com.ficampos.bank.entities;
 
 import com.ficampos.bank.entities.enumeration.Status;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Data
 @Entity
-@Table(name = "tb_transfer")
 @Builder
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "tb_transfer")
 public class Transference implements Serializable {
 
     @Id

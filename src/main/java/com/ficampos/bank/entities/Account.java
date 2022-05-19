@@ -10,14 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@Data
 @Entity
-@Table(name = "tb_account")
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "tb_account")
 public class Account implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

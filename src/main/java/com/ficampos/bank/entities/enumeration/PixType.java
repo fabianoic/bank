@@ -1,14 +1,13 @@
 package com.ficampos.bank.entities.enumeration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum PixType {
-    email("E-mail"), phone("Telefone"), randomKey("Chave Aleatória"), cpf("CPF");
+    EMAIL("E-mail"), PHONE("Telefone"), RANDOMKEY("Chave Aleatória"), CPF("CPF");
 
-    private String description;
+    private final String description;
 
-    PixType(String description) {
-        this.description = description;
-    }
 }

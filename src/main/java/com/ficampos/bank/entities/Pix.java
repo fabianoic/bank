@@ -1,25 +1,22 @@
 package com.ficampos.bank.entities;
 
 import com.ficampos.bank.entities.enumeration.PixType;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@Data
 @Entity
-@Table(name = "tb_pix")
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "tb_pix")
 public class Pix implements Serializable {
     @EmbeddedId
     @Getter
     private PixPK id;
-    @Column(nullable = false, unique = true)
-    private String key;
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -28,9 +25,9 @@ public class Pix implements Serializable {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    private void setAccount(Account account) {
+    private void setKey(String key) {
 
-        id.setAccount(account);
+        id.setKey(key);
     }
 
     private void setPixType(PixType pixType) {

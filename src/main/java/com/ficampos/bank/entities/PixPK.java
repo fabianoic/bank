@@ -1,16 +1,18 @@
 package com.ficampos.bank.entities;
 
 import com.ficampos.bank.entities.enumeration.PixType;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
+@Data
 @Embeddable
-@Getter
-@Setter
 public class PixPK implements Serializable {
-    private Account account;
+
+    @Column(nullable = false, unique = true)
+    private String key;
+    @Column(nullable = false)
     private PixType keyType;
 }

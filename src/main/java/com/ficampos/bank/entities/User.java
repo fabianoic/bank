@@ -1,18 +1,16 @@
 package com.ficampos.bank.entities;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
 
+@Data
 @Entity
-@Table(name = "tb_user")
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "tb_user")
 public class User implements Serializable {
 
     @Id

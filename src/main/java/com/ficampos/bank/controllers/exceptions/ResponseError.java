@@ -5,11 +5,8 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ResponseError implements Serializable {
 
     private Instant timestamp;

@@ -1,19 +1,13 @@
 package com.ficampos.bank.dtos;
 
-import com.ficampos.bank.entities.PixPK;
 import com.ficampos.bank.entities.enumeration.PixType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Builder
 public class PixDTO {
 
     @NotBlank(message = "O tipo de pix não pode ser vázio!")
