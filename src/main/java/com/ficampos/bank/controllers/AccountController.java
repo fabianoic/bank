@@ -2,7 +2,6 @@ package com.ficampos.bank.controllers;
 
 import com.ficampos.bank.dtos.AccountDTO;
 import com.ficampos.bank.dtos.AccountTransferenceDTO;
-import com.ficampos.bank.dtos.PixDTO;
 import com.ficampos.bank.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,7 +36,7 @@ public class AccountController {
 
     @PostMapping("pix")
     public ResponseEntity<AccountDTO> pixTransfer(@RequestBody AccountTransferenceDTO accountTransferenceDTO) {
-        AccountDTO sourceAccount = accountService.pixTransfer(accountTransferenceDTO.getSource(), accountTransferenceDTO.getPix(), accountTransferenceDTO.getValue());
+        AccountDTO sourceAccount = accountService.pixTransference(accountTransferenceDTO.getSource(), accountTransferenceDTO.getPix(), accountTransferenceDTO.getValue());
         if (sourceAccount == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

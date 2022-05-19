@@ -11,6 +11,7 @@ import com.ficampos.bank.repositories.AccountRepository;
 import com.ficampos.bank.repositories.PixRepository;
 import com.ficampos.bank.repositories.TransferenceRepository;
 import com.ficampos.bank.repositories.UserRepository;
+import com.ficampos.bank.services.exceptions.InputInvalidException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,6 @@ public class AccountService {
     private PixRepository pixRepository;
 
     public AccountDTO create(User user) {
-        if (user == null) {
-            return null;
-        }
-
         Account account = Account.builder()
                 .agency(1234)
                 .accountNumber(new Random().nextInt(99999999))
@@ -55,13 +52,25 @@ public class AccountService {
     public AccountDTO deposit(AccountDTO source, AccountDTO destination, Double value) {
         Account accountDestination = accountRepository.findByAgencyAndAccountNumber(destination.getAgency(), destination.getAccountNumber());
         Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
-        if (accountDestination == null || accountSource == null || value < 0.0) {
-            return null;
+
+
+        System.out.println(accountDestination + "   --   " + accountSource);
+        String messageError = "";
+        if (accountDestination == null) {
+            messageError = "Conta de destina não foi encontrada";
+        } else if (accountSource == null) {
+            messageError = "A conta remetente não foi encontrada";
+        } else if (value < 0.0) {
+            messageError = "O valor não pode ser menor que 0";
+        }
+
+        if (!messageError.isBlank()) {
+            throw new InputInvalidException(messageError);
         }
 
         if (!source.equals(destination)) {
             if (source.getBalance() < value) {
-                return null;
+                throw new InputInvalidException("O valor é acima do saldo existente");
             }
             accountSource.setBalance(accountSource.getBalance() - value);
         }
@@ -115,7 +124,7 @@ public class AccountService {
 
     }
 
-    public AccountDTO pixTransfer(AccountDTO source, PixDTO destination, Double value) {
+    public AccountDTO pixTransference(AccountDTO source, PixDTO destination, Double value) {
         Pix pix = pixRepository.findById_keyTypeAndKey(destination.getType(), destination.getKey());
 
         if (pix == null) {

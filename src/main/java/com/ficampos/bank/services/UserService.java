@@ -4,6 +4,8 @@ import com.ficampos.bank.dtos.AccountDTO;
 import com.ficampos.bank.dtos.UserDTO;
 import com.ficampos.bank.entities.User;
 import com.ficampos.bank.repositories.UserRepository;
+import com.ficampos.bank.services.exceptions.EntityAlreadyExistsException;
+import com.ficampos.bank.services.exceptions.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,10 @@ public class UserService {
     private AccountService accountService;
 
     public UserDTO create(UserDTO userDTO) {
+        if (userRepository.existsByEmail(userDTO.getEmail()) || userRepository.existsByCpf(userDTO.getCpf())) {
+            throw new EntityAlreadyExistsException("E-mail ou CPF já cadastrado");
+        }
+
         User user = User.builder()
                 .firstName(userDTO.getFirstName())
                 .lastName(userDTO.getLastName())
@@ -38,11 +44,7 @@ public class UserService {
     }
 
     public UserDTO update(UserDTO userDTO) {
-        User user = userRepository.findById(userDTO.getId()).orElse(null);
-
-        if (user == null) {
-            return null;
-        }
+        User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
         user.setCpf(userDTO.getCpf());
         user.setEmail(userDTO.getEmail());
@@ -67,7 +69,7 @@ public class UserService {
         }
 
         if (user == null) {
-            return null;
+            throw new EntityNotFoundException("Usuário não encontrado");
         }
 
         return converter(user);
@@ -77,7 +79,7 @@ public class UserService {
         User user = userRepository.findByEmailAndPassword(userDTO.getEmail(), userDTO.getPassword());
 
         if (user == null) {
-            return false;
+            throw new EntityNotFoundException("Usuário não encontrado");
         }
 
         accountService.findAccountByUserToDelete(user);
