@@ -2,15 +2,16 @@ package com.ficampos.bank.services;
 
 import com.ficampos.bank.dtos.AccountDTO;
 import com.ficampos.bank.dtos.PixDTO;
+import com.ficampos.bank.dtos.TransferenceDTO;
 import com.ficampos.bank.entities.Account;
 import com.ficampos.bank.entities.Pix;
-import com.ficampos.bank.entities.Transference;
 import com.ficampos.bank.entities.User;
 import com.ficampos.bank.entities.enumeration.Status;
 import com.ficampos.bank.repositories.AccountRepository;
 import com.ficampos.bank.repositories.PixRepository;
 import com.ficampos.bank.repositories.TransferenceRepository;
 import com.ficampos.bank.repositories.UserRepository;
+import com.ficampos.bank.services.exceptions.EntityNotFoundException;
 import com.ficampos.bank.services.exceptions.InputInvalidException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ public class AccountService {
     private TransferenceRepository transferenceRepository;
     @Autowired
     private PixRepository pixRepository;
+    @Autowired
+    private TransferenceService transferenceService;
     @Value("${spring.agency.value}")
     private Integer agency;
 
@@ -40,36 +43,20 @@ public class AccountService {
                 .agency(agency)
                 .accountNumber(new Random().nextInt(99999999))
                 .balance(0.0)
-                .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
+                .createdAt(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))
                 .user(user)
                 .build();
 
         account = accountRepository.save(account);
 
-        ModelMapper modelMapper = new ModelMapper();
-        AccountDTO accountDTO = modelMapper.map(account, AccountDTO.class);
-
-        return accountDTO;
+        return mapperByAccount(account);
     }
 
     public AccountDTO deposit(AccountDTO source, AccountDTO destination, Double value) {
+        inputValidation(source, destination, null, value);
+
         Account accountDestination = accountRepository.findByAgencyAndAccountNumber(destination.getAgency(), destination.getAccountNumber());
         Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
-
-
-        System.out.println(accountDestination + "   --   " + accountSource);
-        String messageError = "";
-        if (accountDestination == null) {
-            messageError = "Conta de destina não foi encontrada";
-        } else if (accountSource == null) {
-            messageError = "A conta remetente não foi encontrada";
-        } else if (value < 0.0) {
-            messageError = "O valor não pode ser menor que 0";
-        }
-
-        if (!messageError.isBlank()) {
-            throw new InputInvalidException(messageError);
-        }
 
         if (!source.equals(destination)) {
             if (accountSource.getBalance() < value) {
@@ -78,68 +65,60 @@ public class AccountService {
             accountSource.setBalance(accountSource.getBalance() - value);
         }
 
-        //WIP: utilizar serviço de criação de transfer
-        Transference transference = Transference.builder()
-                .value(value)
-                .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
-                .destination(accountDestination)
-                .source(accountSource)
-                .status(Status.COMPLETED)
-                .build();
+        TransferenceDTO transferenceDTO =
+                transferenceService.create(
+                        TransferenceDTO
+                                .builder()
+                                .value(value)
+                                .destination(destination)
+                                .source(source)
+                                .build()
+                );
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
 
         accountRepository.save(accountSource);
         accountRepository.save(accountDestination);
-        transferenceRepository.save(transference);
 
-        ModelMapper modelMapper = new ModelMapper();
-        AccountDTO accountDTO = modelMapper.map(accountSource, AccountDTO.class);
+        transferenceService.updateStatus(transferenceDTO, Status.COMPLETED);
 
-        return accountDTO;
+        return mapperByAccount(accountSource);
     }
 
     public AccountDTO withdraw(AccountDTO accountDTO, Double value) {
-        Account account = accountRepository.findByAgencyAndAccountNumber(accountDTO.getAgency(), accountDTO.getAccountNumber());
+        inputValidation(accountDTO, null, null, value);
 
-        if (account == null || value < 0.0 || account.getBalance() - value < 0.0) {
-            return null;
+        Account account = accountRepository.findByAgencyAndAccountNumber(accountDTO.getAgency(), accountDTO.getAccountNumber());
+        if (account.getBalance() - value < 0.0) {
+            throw new InputInvalidException("Valor para saque não pode ser menor que o saldo disponivel na conta!");
         }
 
-        //WIP: utilizar serviço de criação de transfer
-        Transference transference = Transference.builder()
-                .value(value * -1)
-                .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
-                .destination(account)
-                .source(account)
-                .status(Status.COMPLETED)
-                .build();
+        TransferenceDTO transferenceDTO =
+                transferenceService.create(
+                        TransferenceDTO
+                                .builder()
+                                .value(value)
+                                .destination(accountDTO)
+                                .source(accountDTO)
+                                .build()
+                );
 
         account.setBalance(account.getBalance() - value);
 
         accountRepository.save(account);
-        transferenceRepository.save(transference);
 
-        ModelMapper modelMapper = new ModelMapper();
-        accountDTO = modelMapper.map(account, AccountDTO.class);
+        transferenceService.updateStatus(transferenceDTO, Status.COMPLETED);
 
-        return accountDTO;
+        return mapperByAccount(account);
 
     }
 
     public AccountDTO pixTransference(AccountDTO source, PixDTO destination, Double value) {
+        inputValidation(source, null, destination, value);
+
         Pix pix = pixRepository.findById_keyAndId_KeyType(destination.getKey(), destination.getType());
-
-        if (pix == null) {
-            return null;
-        }
-
         Account accountDestination = pix.getAccount();
         Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
-
-        if (accountDestination == null || accountSource == null || value < 0.0) {
-            return null;
-        }
 
         if (!source.equals(destination)) {
             if (source.getBalance() < value) {
@@ -148,25 +127,24 @@ public class AccountService {
             accountSource.setBalance(accountSource.getBalance() - value);
         }
 
-        //WIP: utilizar serviço de criação de transfer
-        Transference transference = Transference.builder()
-                .value(value)
-                .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
-                .destination(accountDestination)
-                .source(accountSource)
-                .status(Status.COMPLETED)
-                .build();
+        TransferenceDTO transferenceDTO =
+                transferenceService.create(
+                        TransferenceDTO
+                                .builder()
+                                .value(value)
+                                .destinationPix(destination)
+                                .source(source)
+                                .build()
+                );
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
 
         accountRepository.save(accountSource);
         accountRepository.save(accountDestination);
-        transferenceRepository.save(transference);
 
-        ModelMapper modelMapper = new ModelMapper();
-        AccountDTO accountDTO = modelMapper.map(accountSource, AccountDTO.class);
+        transferenceService.updateStatus(transferenceDTO, Status.COMPLETED);
 
-        return accountDTO;
+        return mapperByAccount(accountSource);
     }
 
     public Boolean findAccountByUserToDelete(User user) {
@@ -177,5 +155,54 @@ public class AccountService {
         accountRepository.delete(account);
 
         return true;
+    }
+
+    public Account findAccountByAgencyAndAccountNumber(AccountDTO accountDTO) {
+        inputValidation(accountDTO, null, null, null);
+
+        Account account = accountRepository.findByAgencyAndAccountNumber(accountDTO.getAgency(), accountDTO.getAccountNumber());
+
+        return account;
+    }
+
+    private AccountDTO mapperByAccount(Account account) {
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(account, AccountDTO.class);
+    }
+
+    private void inputValidation(AccountDTO source, AccountDTO destination, PixDTO destinationPix, Double value) {
+        boolean sourceIsNull = source == null,
+                destinationIsNull = destination == null,
+                destinationPixIsNull = destinationPix == null,
+                valueIsNull = value == null;
+
+        if (!sourceIsNull) {
+            Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
+            if (accountSource == null) {
+                throw new EntityNotFoundException("A conta remetente não foi encontrada");
+            }
+        }
+
+        if (!destinationPixIsNull) {
+            Pix pix = pixRepository.findById_keyAndId_KeyType(destinationPix.getKey(), destinationPix.getType());
+
+            if (pix == null) {
+                throw new EntityNotFoundException("A chave pix não foi encontrada");
+            }
+        }
+
+        if (!destinationIsNull) {
+            Account accountDestination = accountRepository.findByAgencyAndAccountNumber(destination.getAgency(), destination.getAccountNumber());
+
+            if (accountDestination == null) {
+                throw new EntityNotFoundException("A conta de destino não foi encontrada");
+            }
+        }
+
+        if (!valueIsNull) {
+            if (value < 0.0) {
+                throw new InputInvalidException("Valor para saque não pode ser menor que 0");
+            }
+        }
     }
 }

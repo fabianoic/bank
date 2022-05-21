@@ -48,7 +48,9 @@ public class UserService {
     }
 
     public UserDTO update(UserDTO userDTO) {
-        User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        inputValidation(userDTO);
+
+        User user = userRepository.findById(userDTO.getId()).get();
 
         user.setCpf(userDTO.getCpf());
         user.setEmail(userDTO.getEmail());
@@ -80,12 +82,9 @@ public class UserService {
     }
 
     public Boolean delete(UserDTO userDTO) {
+        inputValidation(userDTO);
+
         User user = userRepository.findByEmailAndPassword(userDTO.getEmail(), userDTO.getPassword());
-
-        if (user == null) {
-            throw new EntityNotFoundException("Usuário não encontrado");
-        }
-
         accountService.findAccountByUserToDelete(user);
         userRepository.delete(user);
 
@@ -96,6 +95,14 @@ public class UserService {
         ModelMapper modelMapper = new ModelMapper();
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
         return userDTO;
+    }
+
+    private void inputValidation(UserDTO userDTO) {
+        User user = userRepository.findByEmailAndPassword(userDTO.getEmail(), userDTO.getPassword());
+
+        if (user == null) {
+            throw new EntityNotFoundException("Usuário não encontrado");
+        }
     }
 
 }

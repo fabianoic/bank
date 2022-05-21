@@ -15,4 +15,6 @@ public class PixDTO {
     private PixType type;
     @NotBlank(message = "A chave pix não pode ser vázio!")
     private String key;
+
+    private AccountDTO accountDTO;
 }

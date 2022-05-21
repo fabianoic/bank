@@ -25,12 +25,12 @@ public class Pix implements Serializable {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    private void setKey(String key) {
+    public void setKey(String key) {
 
         id.setKey(key);
     }
 
-    private void setPixType(PixType pixType) {
+    public void setPixType(PixType pixType) {
 
         id.setKeyType(pixType);
     }
