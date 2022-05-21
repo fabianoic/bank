@@ -1,8 +1,10 @@
 package com.ficampos.bank.entities;
 
 import com.ficampos.bank.entities.enumeration.Status;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +14,8 @@ import java.util.UUID;
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "tb_transfer")
 public class Transference implements Serializable {
 

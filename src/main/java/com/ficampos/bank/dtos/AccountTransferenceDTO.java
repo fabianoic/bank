@@ -1,11 +1,12 @@
 package com.ficampos.bank.dtos;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountTransferenceDTO {
 
     private AccountDTO source;

@@ -1,13 +1,17 @@
 package com.ficampos.bank.controllers.exceptions;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.Instant;
 
-@Data
-@Builder
-public class ResponseError implements Serializable {
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class ErrorResponse implements Serializable {
 
     private Instant timestamp;
     private String message;

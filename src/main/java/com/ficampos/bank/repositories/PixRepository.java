@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PixRepository extends JpaRepository<Pix, PixPK> {
 
-    Pix findById_keyTypeAndKey(PixType pixType, String key);
+    Pix findById_keyAndId_KeyType(String key, PixType pixType);
 }

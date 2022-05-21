@@ -1,9 +1,7 @@
 package com.ficampos.bank.entities;
 
 import com.ficampos.bank.entities.enumeration.PixType;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +10,8 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "tb_pix")
 public class Pix implements Serializable {
     @EmbeddedId

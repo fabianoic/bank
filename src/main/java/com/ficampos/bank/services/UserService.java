@@ -19,8 +19,12 @@ public class UserService {
     private AccountService accountService;
 
     public UserDTO create(UserDTO userDTO) {
-        if (userRepository.existsByEmail(userDTO.getEmail()) || userRepository.existsByCpf(userDTO.getCpf())) {
-            throw new EntityAlreadyExistsException("E-mail ou CPF já cadastrado");
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new EntityAlreadyExistsException("E-mail informado já foi cadastrado!");
+        } else if (userRepository.existsByCpf(userDTO.getCpf())) {
+            throw new EntityAlreadyExistsException("CPF informado já foi cadastrado!");
+        } else if (userRepository.existsByPhone(userDTO.getPhone())) {
+            throw new EntityAlreadyExistsException("Telefone informado já foi cadastrado!");
         }
 
         User user = User.builder()

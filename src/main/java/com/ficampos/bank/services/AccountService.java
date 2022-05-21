@@ -14,6 +14,7 @@ import com.ficampos.bank.repositories.UserRepository;
 import com.ficampos.bank.services.exceptions.InputInvalidException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,10 +32,12 @@ public class AccountService {
     private TransferenceRepository transferenceRepository;
     @Autowired
     private PixRepository pixRepository;
+    @Value("${spring.agency.value}")
+    private Integer agency;
 
     public AccountDTO create(User user) {
         Account account = Account.builder()
-                .agency(1234)
+                .agency(agency)
                 .accountNumber(new Random().nextInt(99999999))
                 .balance(0.0)
                 .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
@@ -69,7 +72,7 @@ public class AccountService {
         }
 
         if (!source.equals(destination)) {
-            if (source.getBalance() < value) {
+            if (accountSource.getBalance() < value) {
                 throw new InputInvalidException("O valor é acima do saldo existente");
             }
             accountSource.setBalance(accountSource.getBalance() - value);
@@ -81,7 +84,7 @@ public class AccountService {
                 .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
                 .destination(accountDestination)
                 .source(accountSource)
-                .status(Status.completed)
+                .status(Status.COMPLETED)
                 .build();
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
@@ -109,7 +112,7 @@ public class AccountService {
                 .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
                 .destination(account)
                 .source(account)
-                .status(Status.completed)
+                .status(Status.COMPLETED)
                 .build();
 
         account.setBalance(account.getBalance() - value);
@@ -125,13 +128,13 @@ public class AccountService {
     }
 
     public AccountDTO pixTransference(AccountDTO source, PixDTO destination, Double value) {
-        Pix pix = pixRepository.findById_keyTypeAndKey(destination.getType(), destination.getKey());
+        Pix pix = pixRepository.findById_keyAndId_KeyType(destination.getKey(), destination.getType());
 
         if (pix == null) {
             return null;
         }
 
-        Account accountDestination = pix.getId().getAccount();
+        Account accountDestination = pix.getAccount();
         Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
 
         if (accountDestination == null || accountSource == null || value < 0.0) {
@@ -151,7 +154,7 @@ public class AccountService {
                 .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
                 .destination(accountDestination)
                 .source(accountSource)
-                .status(Status.completed)
+                .status(Status.COMPLETED)
                 .build();
 
         accountDestination.setBalance(accountDestination.getBalance() + value);

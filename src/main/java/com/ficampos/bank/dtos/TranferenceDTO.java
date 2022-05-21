@@ -1,13 +1,14 @@
 package com.ficampos.bank.dtos;
 
 import com.ficampos.bank.entities.enumeration.Status;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TranferenceDTO {
 
     private Double value;
