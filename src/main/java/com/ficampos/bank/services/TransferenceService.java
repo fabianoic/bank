@@ -6,7 +6,6 @@ import com.ficampos.bank.entities.Transference;
 import com.ficampos.bank.entities.enumeration.Status;
 import com.ficampos.bank.repositories.TransferenceRepository;
 import com.ficampos.bank.services.exceptions.EntityNotFoundException;
-import com.ficampos.bank.services.exceptions.InputInvalidException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,19 +19,16 @@ public class TransferenceService {
     @Autowired
     private TransferenceRepository transferenceRepository;
 
-    @Autowired
-    private AccountService accountService;
-
-    public TransferenceDTO create(TransferenceDTO transferenceDTO) {
-        Account source = accountService.findAccountByAgencyAndAccountNumber(transferenceDTO.getSource());
-        Account destination = null;
-        if (transferenceDTO.getDestination() != null) {
-            destination = accountService.findAccountByAgencyAndAccountNumber(transferenceDTO.getDestination());
-        } else if (transferenceDTO.getDestinationPix() != null) {
-            destination = accountService.findAccountByAgencyAndAccountNumber(transferenceDTO.getDestinationPix().getAccountDTO());
-        } else {
-            throw new InputInvalidException("Conta de destino não foi encontrada!");
-        }
+    public TransferenceDTO create(TransferenceDTO transferenceDTO, Account source, Account destination) {
+//        Account source = accountService.findAccountByAgencyAndAccountNumber(transferenceDTO.getSource());
+//        Account destination = null;
+//        if (transferenceDTO.getDestination() != null) {
+//            destination = accountService.findAccountByAgencyAndAccountNumber(transferenceDTO.getDestination());
+//        } else if (transferenceDTO.getDestinationPix() != null) {
+//            destination = accountService.findAccountByAgencyAndAccountNumber(transferenceDTO.getDestinationPix().getAccountDTO());
+//        } else {
+//            throw new InputInvalidException("Conta de destino não foi encontrada!");
+//        }
 
         Transference transference = new Transference();
         transference.setValue(transferenceDTO.getValue());

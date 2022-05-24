@@ -6,12 +6,12 @@ import com.ficampos.bank.entities.Pix;
 import com.ficampos.bank.repositories.PixRepository;
 import com.ficampos.bank.services.exceptions.EntityAlreadyExistsException;
 import com.ficampos.bank.services.exceptions.EntityNotFoundException;
+import com.ficampos.bank.services.exceptions.InputInvalidException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Service
 public class PixService {
@@ -24,12 +24,13 @@ public class PixService {
 
     public PixDTO create(PixDTO pixDTO) {
         Pix pix = pixRepository.findById_keyAndId_KeyType(pixDTO.getKey(), pixDTO.getType());
+        Account account = accountService.findAccountByAgencyAndAccountNumber(pixDTO.getAccount());
 
         if (pix != null) {
             throw new EntityAlreadyExistsException("O pix informado já existe!");
+        } else if (account == null) {
+            throw new InputInvalidException("A conta informada não foi encontrada");
         }
-
-        Account account = accountService.findAccountByAgencyAndAccountNumber(pixDTO.getAccountDTO());
 
         pix = new Pix();
         pix.setKey(pixDTO.getKey());

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Pix implements Serializable {
     @EmbeddedId
     @Getter
-    private PixPK id;
+    private PixPK id = new PixPK();
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

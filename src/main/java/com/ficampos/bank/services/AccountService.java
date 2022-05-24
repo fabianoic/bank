@@ -1,6 +1,7 @@
 package com.ficampos.bank.services;
 
 import com.ficampos.bank.dtos.AccountDTO;
+import com.ficampos.bank.dtos.AccountPasswordDTO;
 import com.ficampos.bank.dtos.PixDTO;
 import com.ficampos.bank.dtos.TransferenceDTO;
 import com.ficampos.bank.entities.Account;
@@ -70,10 +71,8 @@ public class AccountService {
                         TransferenceDTO
                                 .builder()
                                 .value(value)
-                                .destination(destination)
-                                .source(source)
                                 .build()
-                );
+                        , accountSource, accountDestination);
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
 
@@ -98,10 +97,8 @@ public class AccountService {
                         TransferenceDTO
                                 .builder()
                                 .value(value)
-                                .destination(accountDTO)
-                                .source(accountDTO)
                                 .build()
-                );
+                        , account, account);
 
         account.setBalance(account.getBalance() - value);
 
@@ -121,8 +118,8 @@ public class AccountService {
         Account accountSource = accountRepository.findByAgencyAndAccountNumber(source.getAgency(), source.getAccountNumber());
 
         if (!source.equals(destination)) {
-            if (source.getBalance() < value) {
-                return null;
+            if (accountSource.getBalance() < value) {
+                throw new InputInvalidException("O valor a transferir é inferior ao saldo existente");
             }
             accountSource.setBalance(accountSource.getBalance() - value);
         }
@@ -132,10 +129,8 @@ public class AccountService {
                         TransferenceDTO
                                 .builder()
                                 .value(value)
-                                .destinationPix(destination)
-                                .source(source)
                                 .build()
-                );
+                        , accountSource, accountDestination);
 
         accountDestination.setBalance(accountDestination.getBalance() + value);
 
@@ -163,6 +158,31 @@ public class AccountService {
         Account account = accountRepository.findByAgencyAndAccountNumber(accountDTO.getAgency(), accountDTO.getAccountNumber());
 
         return account;
+    }
+
+    public AccountDTO changePassword(AccountPasswordDTO accountPasswordDTO) {
+        inputValidation(accountPasswordDTO.getAccountDTO(), null, null, null);
+
+        Account account = accountRepository.findByAgencyAndAccountNumber(accountPasswordDTO.getAccountDTO().getAgency(), accountPasswordDTO.getAccountDTO().getAccountNumber());
+
+        if (account.getPassword() != null) {
+            if (accountPasswordDTO.getOldPassword() == null) {
+                throw new InputInvalidException("A senha anterior não pode ser vázia!");
+            }
+            if (!accountPasswordDTO.equals(account.getPassword())) {
+                throw new InputInvalidException("A senha anterior não confere!");
+            }
+            if (account.getPassword().equals(accountPasswordDTO.getNewPassword())) {
+                throw new InputInvalidException("A senha antiga não pode ser a mesma que a nova!");
+            }
+            account.setPassword(accountPasswordDTO.getNewPassword());
+        } else {
+            account.setPassword(accountPasswordDTO.getNewPassword());
+        }
+
+        accountRepository.save(account);
+
+        return mapperByAccount(account);
     }
 
     private AccountDTO mapperByAccount(Account account) {
