@@ -169,7 +169,7 @@ public class AccountService {
             if (accountPasswordDTO.getOldPassword() == null) {
                 throw new InputInvalidException("A senha anterior não pode ser vázia!");
             }
-            if (!accountPasswordDTO.equals(account.getPassword())) {
+            if (!accountPasswordDTO.getOldPassword().equals(account.getPassword())) {
                 throw new InputInvalidException("A senha anterior não confere!");
             }
             if (account.getPassword().equals(accountPasswordDTO.getNewPassword())) {

@@ -48,10 +48,10 @@ public class PixService {
 
         Pix pix = pixRepository.findById_keyAndId_KeyType(pixDTO.getKey(), pixDTO.getType());
 
-        pix.setKey(newKey);
-        pix.setUpdatedAt(LocalDateTime.now());
-
-        pix = pixRepository.save(pix);
+        if (pix == null) {
+            throw new EntityNotFoundException("Pix informado não encontrada");
+        }
+        pixRepository.update(pix.getId().getKey(), pix.getId().getKeyType(), newKey, LocalDateTime.now());
 
         return mapperByPix(pix);
     }

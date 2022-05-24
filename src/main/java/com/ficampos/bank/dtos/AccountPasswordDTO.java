@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -13,10 +14,10 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class AccountPasswordDTO {
 
-    @NotBlank(message = "A conta a ser alterada não pode ser vázio!")
+    @NotNull(message = "A conta a ser alterada não pode ser vázio!")
     private AccountDTO accountDTO;
     private Long oldPassword;
-    @NotBlank(message = "A nova senha não pode ser vázio!")
+    @NotNull(message = "A nova senha não pode ser vázio!")
     private Long newPassword;
 
 }
