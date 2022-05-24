@@ -23,7 +23,7 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> entityNotFound(EntityNotFoundException e, HttpServletRequest request) {
-        ErrorResponse errorResponse = mountResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+        ErrorResponse errorResponse = mountResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
 
         return ResponseEntity.status(errorResponse.getStatus()).body(errorResponse);
     }
